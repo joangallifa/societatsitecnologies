@@ -90,6 +90,7 @@ export function TimelineApp() {
         session={session}
         view={view}
         readOnly={entriesLocked}
+        phaseStatus={appStatus}
         onNavigate={setView}
         onAddNew={() => {
           setEditingEntry(null);

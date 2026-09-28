@@ -34,3 +34,15 @@ export const DEFAULT_APP_STATUS: Record<AppKey, AppStatus> = {
   "linia-temps": "EDITAR_TECNOLOGIES",
   definicions: "EDITABLE",
 };
+
+// Missatge orientat a l'alumnat que explica, en llenguatge planer, què pot
+// fer ara mateix a la línia del temps (diferent de l'etiqueta tècnica que
+// veu el professor al desplegable d'administració).
+export const LINIA_TEMPS_PHASE_MESSAGES: Partial<Record<AppStatus, string>> = {
+  EDITAR_TECNOLOGIES:
+    "Ara podeu entrar tecnologies a la línia del temps.",
+  EDITAR_METODOLOGIES:
+    "Ara podeu aplicar les metodologies (SAMR i STEEP) a les tecnologies de la línia del temps.",
+  CONSULTA:
+    "L'activitat ha finalitzat: ara només podeu consultar la línia del temps i les anàlisis de la classe.",
+};
