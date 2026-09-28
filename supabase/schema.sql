@@ -241,6 +241,7 @@ create table if not exists public.analyses (
   samr_level     text not null check (
     samr_level in ('SUBSTITUCIO', 'AUGMENT', 'MODIFICACIO', 'REDEFINICIO')
   ),
+  samr_comment     text not null default '',
   steep_social     text not null,
   steep_tecnologic text not null,
   steep_economic   text not null,
@@ -249,6 +250,8 @@ create table if not exists public.analyses (
   created_at     timestamptz not null default now(),
   unique (entry_id, author_id)
 );
+
+alter table public.analyses add column if not exists samr_comment text not null default '';
 
 create index if not exists analyses_entry_id_idx on public.analyses (entry_id);
 

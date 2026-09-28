@@ -19,6 +19,7 @@ export type Analysis = {
   entry_id: string;
   author_id: string;
   samr_level: SamrLevel;
+  samr_comment: string;
   steep_social: string;
   steep_tecnologic: string;
   steep_economic: string;

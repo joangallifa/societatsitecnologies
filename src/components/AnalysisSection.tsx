@@ -30,6 +30,7 @@ export function AnalysisSection({
   const [error, setError] = useState<string | null>(null);
   const [others, setOthers] = useState<Analysis[]>([]);
   const [samrLevel, setSamrLevel] = useState<SamrLevel | "">("");
+  const [samrComment, setSamrComment] = useState("");
   const [steep, setSteep] = useState<SteepValues>(EMPTY_STEEP);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -62,6 +63,7 @@ export function AnalysisSection({
             : []
         );
         setSamrLevel(mine?.samr_level ?? "");
+        setSamrComment(mine?.samr_comment ?? "");
         setSteep(
           mine
             ? {
@@ -98,6 +100,7 @@ export function AnalysisSection({
       entry_id: entry.id,
       author_id: session.user.id,
       samr_level: samrLevel,
+      samr_comment: samrComment.trim(),
       steep_social: steep.steep_social.trim(),
       steep_tecnologic: steep.steep_tecnologic.trim(),
       steep_economic: steep.steep_economic.trim(),
@@ -137,12 +140,12 @@ export function AnalysisSection({
         </p>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-4 space-y-5">
-        <div>
-          <span className="mb-2 block text-xs font-medium text-slate-600">
+      <form onSubmit={handleSubmit} className="mt-4 space-y-6">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+          <span className="mb-3 block text-xs font-semibold text-slate-700">
             Nivell SAMR (Dr. Puentedura)
           </span>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             {SAMR_OPTIONS.map(([value, label]) => (
               <label
                 key={value}
@@ -172,10 +175,29 @@ export function AnalysisSection({
               </label>
             ))}
           </div>
+
+          <div className="mt-3">
+            <label
+              htmlFor="samr_comment"
+              className="mb-1 block text-[11px] font-medium text-slate-500"
+            >
+              Per què has triat aquest nivell? (opcional)
+            </label>
+            <textarea
+              id="samr_comment"
+              rows={2}
+              maxLength={500}
+              value={samrComment}
+              disabled={readOnly}
+              onChange={(e) => setSamrComment(e.target.value)}
+              placeholder="Explica breument el raonament darrere del nivell triat..."
+              className="w-full resize-none rounded-xl border border-slate-300 px-3 py-2 text-xs shadow-sm outline-none transition focus:border-accent-400 focus:ring-2 focus:ring-accent-100 disabled:bg-slate-50 disabled:text-slate-500"
+            />
+          </div>
         </div>
 
-        <div>
-          <span className="mb-2 block text-xs font-medium text-slate-600">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <span className="mb-3 block text-xs font-semibold text-slate-700">
             Anàlisi STEEP: una frase per àmbit
           </span>
           <div className="space-y-2.5">
@@ -239,6 +261,11 @@ export function AnalysisSection({
                       analysis.samr_level}
                   </span>
                 </p>
+                {analysis.samr_comment && (
+                  <p className="mt-1 italic text-slate-500">
+                    {analysis.samr_comment}
+                  </p>
+                )}
                 <ul className="mt-2 space-y-1 text-slate-600">
                   {STEEP_FIELDS.map((field) => (
                     <li key={field.key}>

@@ -39,7 +39,9 @@ export function EntryModal({
       <div
         role="dialog"
         aria-modal="true"
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white shadow-xl"
+        className={`max-h-[90vh] w-full overflow-y-auto rounded-3xl bg-white shadow-xl ${
+          showAnalysis ? "max-w-2xl" : "max-w-lg"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-64 w-full flex-shrink-0 bg-slate-100">
