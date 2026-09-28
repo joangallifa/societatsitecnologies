@@ -7,6 +7,8 @@ import { useAppStatus } from "../hooks/useAppStatus";
 import type { Definition } from "../types";
 import { LoginForm } from "./LoginForm";
 import { AppUnavailable } from "./AppUnavailable";
+import { RichTextEditor } from "./RichTextEditor";
+import { sanitizeHtml, htmlToText, toDisplayHtml } from "../lib/richText";
 
 type View = "meva" | "admin";
 
@@ -23,7 +25,7 @@ function TopBar({
 }) {
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-6 sm:py-4">
+      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             to="/"
@@ -75,7 +77,7 @@ export function DefinitionsApp() {
     return (
       <div className="min-h-screen text-slate-900">
         <TopBar session={null} isAdmin={false} view={view} onNavigate={setView} />
-        <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 sm:px-6">
+        <main className="mx-auto max-w-4xl px-4 pb-24 pt-8 sm:px-6">
           <p className="text-sm text-slate-400">Carregant...</p>
         </main>
       </div>
@@ -93,7 +95,7 @@ export function DefinitionsApp() {
   return (
     <div className="min-h-screen text-slate-900">
       <TopBar session={session} isAdmin={isAdmin} view={view} onNavigate={setView} />
-      <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 sm:px-6">
+      <main className="mx-auto max-w-4xl px-4 pb-24 pt-8 sm:px-6">
         {!session && <LoginForm />}
 
         {session && isAdmin && view === "admin" && (
@@ -155,11 +157,14 @@ function MyDefinition({ userId }: { userId: string }) {
     setSaved(false);
     setSaving(true);
 
+    const initialHtml = sanitizeHtml(initial);
+    const finalHtml = sanitizeHtml(final);
+
     const { error: saveError } = await supabase.from("definitions").upsert(
       {
         author_id: userId,
-        initial_definition: initial.trim() || null,
-        final_definition: final.trim() || null,
+        initial_definition: htmlToText(initialHtml) ? initialHtml : null,
+        final_definition: htmlToText(finalHtml) ? finalHtml : null,
       },
       { onConflict: "author_id" }
     );
@@ -185,44 +190,34 @@ function MyDefinition({ userId }: { userId: string }) {
         Aquesta activitat és privada: només tu i el professor la podeu veure.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+      <form onSubmit={handleSubmit} className="mt-8 space-y-8">
         <div>
-          <label
-            htmlFor="initial"
-            className="mb-1.5 block text-sm font-medium text-slate-700"
-          >
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Definició inicial
           </label>
           <p className="mb-2 text-xs text-slate-400">
             Abans de llegir el document: què entens per "tecnologia"?
           </p>
-          <textarea
-            id="initial"
-            rows={4}
+          <RichTextEditor
             value={initial}
-            onChange={(e) => setInitial(e.target.value)}
+            onChange={setInitial}
             placeholder="La meva definició de tecnologia és..."
-            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm shadow-sm outline-none transition focus:border-accent-400 focus:ring-2 focus:ring-accent-100"
+            minHeightClassName="min-h-[220px]"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="final"
-            className="mb-1.5 block text-sm font-medium text-slate-700"
-          >
+          <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Definició després de llegir el document
           </label>
           <p className="mb-2 text-xs text-slate-400">
             Ara que has llegit el document: com definiries "tecnologia"?
           </p>
-          <textarea
-            id="final"
-            rows={4}
+          <RichTextEditor
             value={final}
-            onChange={(e) => setFinal(e.target.value)}
+            onChange={setFinal}
             placeholder="Després de llegir el document, defineixo tecnologia com..."
-            className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm shadow-sm outline-none transition focus:border-accent-400 focus:ring-2 focus:ring-accent-100"
+            minHeightClassName="min-h-[220px]"
           />
         </div>
 
@@ -291,35 +286,49 @@ function DefinitionsRoster({ excludeUserId }: { excludeUserId?: string }) {
           Encara ningú ha escrit cap definició.
         </p>
       ) : (
-        <ul className="mt-6 space-y-3">
+        <ul className="mt-6 space-y-4">
           {rows.map((row) => (
             <li
               key={row.id}
-              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
             >
               <p className="text-sm font-semibold text-slate-800">
                 {row.profiles?.email ?? "—"}
               </p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="mt-4 grid gap-5 sm:grid-cols-2">
                 <div>
                   <p className="text-xs font-medium text-slate-500">
                     Definició inicial
                   </p>
-                  <p className="mt-1 text-sm text-slate-700">
-                    {row.initial_definition || (
-                      <span className="text-slate-400">— sense resposta —</span>
-                    )}
-                  </p>
+                  {row.initial_definition ? (
+                    <div
+                      className="rich-text mt-1.5 text-sm leading-relaxed text-slate-700"
+                      dangerouslySetInnerHTML={{
+                        __html: toDisplayHtml(row.initial_definition),
+                      }}
+                    />
+                  ) : (
+                    <p className="mt-1.5 text-sm text-slate-400">
+                      — sense resposta —
+                    </p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs font-medium text-slate-500">
                     Definició posterior
                   </p>
-                  <p className="mt-1 text-sm text-slate-700">
-                    {row.final_definition || (
-                      <span className="text-slate-400">— sense resposta —</span>
-                    )}
-                  </p>
+                  {row.final_definition ? (
+                    <div
+                      className="rich-text mt-1.5 text-sm leading-relaxed text-slate-700"
+                      dangerouslySetInnerHTML={{
+                        __html: toDisplayHtml(row.final_definition),
+                      }}
+                    />
+                  ) : (
+                    <p className="mt-1.5 text-sm text-slate-400">
+                      — sense resposta —
+                    </p>
+                  )}
                 </div>
               </div>
             </li>

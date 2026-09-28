@@ -13,10 +13,12 @@ export function RichTextEditor({
   value,
   onChange,
   placeholder,
+  minHeightClassName = "min-h-[140px]",
 }: {
   value: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  minHeightClassName?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isEmpty = htmlToText(value) === "";
@@ -61,7 +63,7 @@ export function RichTextEditor({
         onInput={emit}
         onBlur={emit}
         data-placeholder={placeholder}
-        className={`rich-text min-h-[140px] px-4 py-2.5 text-sm text-slate-900 outline-none ${
+        className={`rich-text ${minHeightClassName} px-4 py-2.5 text-sm text-slate-900 outline-none ${
           isEmpty ? "rich-text-empty" : ""
         }`}
       />
