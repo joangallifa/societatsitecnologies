@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { supabase, ALLOWED_EMAIL_DOMAIN } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 
 type Step = "email" | "code";
 
@@ -7,19 +7,12 @@ export function LoginForm() {
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "domain-error" | "error"
-  >("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSendCode(e: FormEvent) {
     e.preventDefault();
     const trimmed = email.trim();
-
-    if (!trimmed.toLowerCase().endsWith(`@${ALLOWED_EMAIL_DOMAIN}`)) {
-      setStatus("domain-error");
-      return;
-    }
 
     setStatus("loading");
 
@@ -122,11 +115,8 @@ export function LoginForm() {
         Inicia sessió
       </h1>
       <p className="mt-2 text-sm text-slate-500">
-        Introdueix el teu correu de l&apos;institut (
-        <span className="font-medium text-slate-700">
-          @{ALLOWED_EMAIL_DOMAIN}
-        </span>
-        ) i et enviarem un codi d&apos;accés.
+        Introdueix el teu correu electrònic i et enviarem un codi
+        d&apos;accés.
       </p>
 
       <form onSubmit={handleSendCode} className="mt-8 space-y-4">
@@ -141,7 +131,7 @@ export function LoginForm() {
             id="email"
             type="email"
             required
-            placeholder={`nom.cognom@${ALLOWED_EMAIL_DOMAIN}`}
+            placeholder="nom.cognom@exemple.cat"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
@@ -151,11 +141,6 @@ export function LoginForm() {
           />
         </div>
 
-        {status === "domain-error" && (
-          <p className="text-sm text-red-600">
-            Només s&apos;admeten comptes del domini @{ALLOWED_EMAIL_DOMAIN}.
-          </p>
-        )}
         {status === "error" && (
           <p className="text-sm text-red-600">{errorMessage}</p>
         )}

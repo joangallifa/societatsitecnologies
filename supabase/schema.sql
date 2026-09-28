@@ -86,26 +86,12 @@ create policy "Els usuaris autenticats poden afegir les seves entrades"
 -- 4. Funcions i triggers sobre auth.users
 -- ---------------------------------------------------------------------
 
--- Rebutja qualsevol registre amb un correu fora del domini permès.
--- És un trigger BEFORE: si rebutja, tampoc s'executa el següent.
-create or replace function public.restrict_email_domain()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  if new.email is null or new.email !~* '@umanresa\.cat$' then
-    raise exception 'Només s''admeten comptes del domini @umanresa.cat';
-  end if;
-  return new;
-end;
-$$;
-
+-- Anteriorment hi havia aquí un trigger que rebutjava qualsevol registre
+-- amb un correu fora del domini @umanresa.cat. S'ha eliminat perquè ara
+-- s'admet qualsevol domini de correu. Es deixa l'eliminació explícita per
+-- si l'script s'executa sobre un projecte on encara existeixi.
 drop trigger if exists restrict_email_domain_trigger on auth.users;
-create trigger restrict_email_domain_trigger
-  before insert on auth.users
-  for each row execute function public.restrict_email_domain();
+drop function if exists public.restrict_email_domain();
 
 -- En crear-se un usuari, en desem una còpia mínima a public.profiles.
 create or replace function public.handle_new_user()

@@ -3,8 +3,8 @@
 Aplicació web perquè l'alumnat construeixi col·laborativament una línia de
 temps de tecnologies al llarg de la història. Cada entrada té una foto, un
 títol, una descripció, un any (i opcionalment una època), i mostra qui l'ha
-afegit. Només es pot entrar amb un correu **@umanresa.cat**, mitjançant un
-enllaç d'accés (magic link) enviat per correu.
+afegit. S'entra amb qualsevol correu electrònic, mitjançant un codi d'accés
+(OTP) enviat per correu.
 
 ## Stack
 
@@ -31,8 +31,6 @@ polítiques de RLS, no el secret de la clau).
      pròpies, esborrat de les pròpies o de qualsevol si ets l'administrador)
    - la taula `profiles` (còpia mínima de `auth.users` perquè es pugui
      mostrar l'autor)
-   - un trigger que **rebutja qualsevol registre amb un correu que no
-     acabi en `@umanresa.cat`**
    - el bucket públic `photos` per a les fotografies, amb les seves
      polítiques d'accés
 3. Ves a **Authentication → Sign In / Providers → Email** i comprova que
@@ -92,10 +90,8 @@ compila i publica automàticament a cada `push` a `main`.
 
 ## Seguretat
 
-- El domini permès per iniciar sessió es reforça a dos nivells: al
-  formulari (UX) i, de manera vinculant, amb un trigger a la base de
-  dades que rebutja qualsevol usuari nou amb un correu que no sigui
-  `@umanresa.cat`.
+- S'admet qualsevol domini de correu per iniciar sessió; l'accés es
+  verifica amb un codi OTP enviat per correu.
 - Row Level Security assegura que ningú pugui inserir entrades fent-se
   passar per un altre autor (`auth.uid() = author_id`), encara que la
   clau `anon` sigui pública.
