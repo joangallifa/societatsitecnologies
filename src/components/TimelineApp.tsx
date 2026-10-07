@@ -73,12 +73,15 @@ export function TimelineApp() {
     return <AppUnavailable />;
   }
 
-  // Les tecnologies només es poden editar/esborrar durant la fase "Editar
-  // tecnologies" (i mentre l'app és oculta, per preparar contingut); en
-  // "només consulta" i "Editar metodologies" ningú les pot tocar, ni tan
-  // sols l'administrador.
+  // Les tecnologies existents només es poden editar/esborrar durant la fase
+  // "Editar tecnologies" (i mentre l'app és oculta, per preparar contingut);
+  // en "només consulta" i "Editar metodologies" ningú les pot tocar, ni tan
+  // sols l'administrador. Afegir-ne de noves, en canvi, es pot fer també
+  // durant "Editar metodologies".
   const entriesLocked =
     appStatus === "CONSULTA" || appStatus === "EDITAR_METODOLOGIES";
+  const addLocked = appStatus === "CONSULTA";
+  const formLocked = editingEntry ? entriesLocked : addLocked;
   // Les metodologies (SAMR/STEEP) no es mostren durant "Editar tecnologies";
   // un cop visibles, només es poden editar durant "Editar metodologies".
   const showAnalysis = appStatus !== "EDITAR_TECNOLOGIES";
@@ -89,7 +92,7 @@ export function TimelineApp() {
       <Header
         session={session}
         view={view}
-        readOnly={entriesLocked}
+        readOnly={addLocked}
         phaseStatus={appStatus}
         onNavigate={setView}
         onAddNew={() => {
@@ -100,7 +103,7 @@ export function TimelineApp() {
       <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 sm:px-6">
         {view === "login" && !session && <LoginForm />}
 
-        {view === "new" && session && !entriesLocked && (
+        {view === "new" && session && !formLocked && (
           <div className="mx-auto max-w-xl">
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
               {editingEntry ? "Editar la tecnologia" : "Afegir una tecnologia"}
