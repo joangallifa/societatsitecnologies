@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import type { Entry } from "../types";
 import { ERA_LABELS } from "../lib/era";
@@ -86,6 +87,12 @@ export function EntryModal({
                 {authorLabel(entry)}
               </span>
             </div>
+            <Link
+              to={`/linia-temps/tecnologia/${entry.id}`}
+              className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              Veure la pàgina
+            </Link>
             {canEdit && (
               <button
                 onClick={() => onEdit(entry)}
